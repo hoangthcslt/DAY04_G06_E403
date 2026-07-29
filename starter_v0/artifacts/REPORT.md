@@ -7,7 +7,7 @@
 ## Team
 
 - Team: *(điền tên nhóm)*
-- Members: Luong Hoang Minh (2A202601490) · Duong Van Kien (2A202601724) · Nguyen Dinh Hoang (2A202601436) · Hoang Huyen
+- Members: Luong Hoang Minh (2A202601490) · Duong Van Kien (2A202601724) · Nguyen Dinh Hoang (2A202601436) · Hoang Thi Ha Huyen (2A202601909) · Tran Tien Dung (2A202601064)  
 - Provider/model: OpenRouter · `openai/gpt-4o-mini`
 
 ---
