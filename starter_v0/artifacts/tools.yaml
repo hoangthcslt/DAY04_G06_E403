@@ -27,6 +27,14 @@ tools:
         limit: {type: integer, default: 5, description: "Số lượng"}
       required: [screenname]
 
+  - name: user_profile
+    description: "Lấy thông tin hồ sơ (bio, số follower, số following, số tweet) của một tài khoản Twitter/X. Dùng khi user hỏi về THÔNG TIN TÀI KHOẢN (bao nhiêu follower, giới thiệu bản thân...), không dùng khi user muốn xem BÀI ĐĂNG gần đây (dùng timeline cho việc đó)."
+    parameters:
+      type: object
+      properties:
+        screenname: {type: string, default: "", description: "Tên tài khoản (không kèm @)"}
+      required: [screenname]
+
   - name: social_search
     description: "Tìm trên mạng xã hội."
     parameters:

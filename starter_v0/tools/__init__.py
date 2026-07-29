@@ -11,6 +11,7 @@ from .clarify.tool import ask_user
 from .papers.tool import arxiv_search
 from .paper_text.tool import get_arxiv_paper_text
 from .timeline.tool import get_user_tweets
+from .user_profile.tool import get_user_profile
 from .fetch.tool import read_url
 from .format.tool import render_digest
 from .policy.tool import search_company_policy
@@ -27,6 +28,7 @@ from .lookup.tool import web_search
 TOOL_FUNCTIONS = {
     "clarify": ask_user,
     "timeline": get_user_tweets,
+    "user_profile": get_user_profile,
     "social_search": search_tweets,
     "lookup": web_search,
     "fetch": read_url,

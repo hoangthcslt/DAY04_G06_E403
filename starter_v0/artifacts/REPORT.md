@@ -30,6 +30,7 @@ Research agent: tra cứu tweet theo tài khoản hoặc theo từ khóa, tìm t
 |---|---|---|
 | clarify | Hỏi lại người dùng (text/yes_no/choice) khi thiếu thông tin hoặc cần xác nhận trước hành động nhạy cảm | không |
 | timeline | Lấy các bài đăng gần đây của một tài khoản (Twitter/X) | không |
+| user_profile | Lấy thông tin hồ sơ (follower, following, số tweet, bio) của một tài khoản Twitter/X | **có — tool mới của nhóm** |
 | social_search | Tìm bài đăng trên mạng xã hội theo từ khóa (Latest/Top) | không |
 | lookup | Tìm kiếm trên web (Tavily), có thể lọc theo mốc thời gian và `topic=news` | không |
 | fetch | Đọc nội dung một URL cụ thể (Firecrawl) | không |
@@ -39,7 +40,7 @@ Research agent: tra cứu tweet theo tài khoản hoặc theo từ khóa, tìm t
 | papers | Tìm paper học thuật trên arXiv | không |
 | paper_text | Tải PDF arXiv và trích text theo trang | không |
 
-**Gap cần lưu ý:** cả 10 tool trên đều là tool có sẵn trong starter — nhóm **chưa hoàn thành yêu cầu bắt buộc "viết thêm ít nhất 1 tool mới"** (kèm `TOOL.md`, đăng ký `tools/__init__.py`, khai báo `tools.yaml`, quicktest). Cần làm trước khi nộp bài.
+**Tool mới nhóm thêm:** `user_profile` — lấy follower/following/bio của một tài khoản Twitter/X, dùng chung `RAPIDAPI_KEY`/`RAPIDAPI_TWITTER_HOST` đã cấu hình. Khác `timeline` (lấy bài đăng): `user_profile` trả về thông tin hồ sơ tài khoản. Đã có `TOOL.md`, đăng ký trong `tools/__init__.py` + `artifacts/tools.yaml`, và quicktest PASS (`item_count=1`, `first_title="Sam Altman"`).
 
 ## A3. Câu hỏi mẫu để thử
 
@@ -134,7 +135,7 @@ Việc cần làm trước khi nộp bài (theo README Step 5 + checklist demo):
 
 | Category | Evidence File | What Worked | Risk / Guardrail |
 |---|---|---|---|
-| Must-have: tool mới đầu tiên | *(chưa có)* | **Chưa triển khai** — đây là yêu cầu bắt buộc còn thiếu, cần làm trước khi nộp bài | — |
+| Must-have: tool mới đầu tiên | `tools/user_profile/` (`tool.py`, `TOOL.md`), đăng ký trong `tools/__init__.py` + `artifacts/tools.yaml` | Quicktest PASS: `error=None`, `item_count=1`, `first_title="Sam Altman"` | Chưa có eval case riêng trong `eval_group.json` (đã đủ 10 case, cần team quyết định có thay 1 case cũ hay không) |
 | Optional built-in | `policy` (dùng ở G01, G09), `papers` (G03), `paper_text` (G10) — cả 3 đều xuất hiện trong team eval nên **cần smoke-test bắt buộc** theo gate matrix ở `TOOL-SETUP.md` | Routing pass trong `eval_group` v3 (G01, G03, G09, G10 đều PASS) | Chưa có bằng chứng smoke-test riêng (`error=None`) cho `policy`/`papers`/`paper_text` — cần chạy lệnh ở mục 8–9 `TOOL-SETUP.md` và đính kèm output |
 | Bonus: tool mới thứ 4 trở đi | *(chưa áp dụng)* | — | Chỉ tính bonus sau khi có ≥1 tool bắt buộc + thêm >3 tool mới; hiện tại 0/1 |
 
@@ -145,7 +146,7 @@ Việc cần làm trước khi nộp bài (theo README Step 5 + checklist demo):
 - **Which failure needed manual review instead of automatic grading?** R12/G02 — ở v0, agent còn tự viết text "Bản tin này đã được đăng lên Telegram" trong lúc gọi `send(confirmed=false)`, tức là **claim đã gửi dù chưa hề gửi** (tool trả về `needs_confirmation`, không phải `sent`). Eval tool_calls-diff chỉ chấm routing/args, không bắt được lỗi nội dung "nói dối" này — phải đọc `tool_results`/`actual_text` thủ công mới thấy.
 - **What would you improve next?**
   1. Sửa G05 (thiếu từ khóa tìm kiếm) — mở rộng rule 2 trong `system_prompt.md` để cover cả `social_search`/`lookup` thiếu chủ đề, không chỉ thiếu handle/URL.
-  2. Hoàn thành tool mới bắt buộc (đang là gap lớn nhất).
+  2. Cân nhắc thay 1 case trong `eval_group.json` bằng case test routing `user_profile` vs `timeline` (tool mới vừa thêm chưa có eval case riêng).
   3. Chạy 3 live-chat turn thật để điền B4.
   4. Smoke-test `policy`/`papers`/`paper_text` vì cả 3 đều được dùng trong team eval.
   5. Mở Cloudflare Tunnel và điền link demo vào A1 trước showdown.
