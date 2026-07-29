@@ -1,2 +1,3 @@
 version,author,changed_artifact,artifact_version,prompt_hash,tools_hash,reason,hypothesis,metric_name,metric_before,metric_after,run_file
 v0,Hoang Minh,none,v0+pf0c107a9d7a1+t011c271ef0bb,f0c107a9d7a1,011c271ef0bb,baseline,none,case_accuracy,,0.70,runs/v0_B_base_openrouter_20260729T145536395546.json
+v1,Duong Kien,system_prompt.md,v1+p862d07458883+t6cdb53d5d7b8,862d07458883,6cdb53d5d7b8,"system_prompt dòng 3 dạy agent đoán bừa khi thiếu thông tin thay vì hỏi lại","Xóa instruction 'không hỏi lại, cứ đoán'; thay bằng yêu cầu gọi clarify khi thiếu handle/URL sẽ giảm missing_info và out_of_scope false-positive",case_accuracy,0.70,0.85,runs/v1_B_base_openrouter_20260729T151028784265.json
