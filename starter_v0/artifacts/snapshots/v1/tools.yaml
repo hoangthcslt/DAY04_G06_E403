@@ -14,9 +14,9 @@ tools:
       type: object
       properties:
         question: {type: string, default: "", description: "Câu hỏi"}
-        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Kiểu trả lời: 'text' cho câu hỏi tự do, 'yes_no' cho xác nhận Có/Không, 'choice' cho trắc nghiệm nhiều lựa chọn"}
+        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Kiểu trả lời"}
         options: {type: array, default: [], items: {type: string}, description: "Các lựa chọn"}
-      required: [question, response_type]
+      required: [question]
 
   - name: timeline
     description: "Lấy các bài đăng gần đây."
@@ -43,10 +43,10 @@ tools:
       type: object
       properties:
         query: {type: string, default: "", description: "Truy vấn"}
-        topic: {type: string, enum: [general, news], default: "general", description: "Phân loại tìm kiếm: chọn 'news' nếu người dùng muốn tìm tin tức, tin hôm nay, tin tức mới, tin thời sự; chọn 'general' nếu tra cứu thông tin chung."}
-        timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "Khoảng thời gian: chọn 'day' cho hôm nay, 'week' cho tuần này, 'month' cho tháng này, 'year' cho năm này."}
+        topic: {type: string, enum: [general, news], default: "general", description: "Phân loại"}
+        timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "Khoảng thời gian"}
         max_results: {type: integer, default: 5, description: "Số kết quả"}
-      required: [query, topic]
+      required: [query]
 
   - name: fetch
     description: "Lấy nội dung từ một địa chỉ."
