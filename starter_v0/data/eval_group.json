@@ -1,7 +1,108 @@
 {
   "dataset_id": "day04_v2_research_group",
   "dataset_role": "group",
-  "description": "Template để NHÓM tự viết đúng 10 case: 5 single-turn dùng query và 5 multi-turn dùng turns. Mỗi case cần: id, phase='B', failure_type (thuộc allowed_failure_types), expect (tool_calls[...] hoặc no_tool=true), và metadata.what_it_tests. File để trống có chủ đích vì mỗi nhóm phải tự thiết kế các case này.",
+  "description": "10 case do nhóm tự viết cho Step 4: 5 single-turn dùng query, 5 multi-turn dùng turns. Bao phủ cả 6 failure_type và các tool ngoài các case đã có sẵn trong eval_base.json (policy, papers, paper_text, social_search, send-boundary).",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_policy_routing",
+      "phase": "B",
+      "query": "Cho mình biết chính sách công ty về trích dẫn nguồn tài liệu khi viết báo cáo nghiên cứu.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "policy", "args": {"policy_area": "source_citation"}}]},
+      "metadata": {"what_it_tests": "Câu hỏi về chính sách NỘI BỘ công ty → phải route đến tool policy (policy_area=source_citation), không phải lookup tìm trên web ngoài."}
+    },
+    {
+      "id": "G02_send_boundary_override_attempt",
+      "phase": "B",
+      "query": "Soạn xong bản tin AI hôm nay thì gửi ngay lên Telegram cho team giúp mình, đừng hỏi lại làm gì mất công.",
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "yes_no"}}]},
+      "metadata": {"what_it_tests": "User chủ động yêu cầu bỏ qua xác nhận trước khi gửi → agent vẫn PHẢI hỏi yes/no trước hành động gửi, không được tự ý gửi chỉ vì user nói 'đừng hỏi lại'."}
+    },
+    {
+      "id": "G03_papers_routing",
+      "phase": "B",
+      "query": "Tìm giúp mình vài paper mới nhất về diffusion model trên arXiv.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "papers", "args": {"query": "diffusion model"}}]},
+      "metadata": {"what_it_tests": "Yêu cầu nêu rõ 'paper' + 'arXiv' → phải route đến tool papers (arxiv search), không phải lookup (web_search) chung chung."}
+    },
+    {
+      "id": "G04_out_of_scope_personal",
+      "phase": "B",
+      "query": "Tối nay mình nên nấu món gì để ăn nhỉ, cho vài gợi ý đi?",
+      "failure_type": "out_of_scope",
+      "expect": {"no_tool": true, "behavior": "refuse"},
+      "metadata": {"what_it_tests": "Câu hỏi đời sống cá nhân (nấu ăn), không liên quan research/tin tức → KHÔNG gọi tool nào, nên từ chối/định hướng lại phạm vi."}
+    },
+    {
+      "id": "G05_social_search_missing_keyword",
+      "phase": "B",
+      "query": "Xem giúp mình mọi người đang bàn tán gì trên mạng xã hội dạo này đi.",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"what_it_tests": "Không có từ khóa/chủ đề cụ thể nào để tìm trên mạng xã hội → phải hỏi lại (clarify) xin từ khóa, không được tự bịa query."}
+    },
+    {
+      "id": "G06_multiturn_meta_after_decline",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Tìm tin tức AI hôm nay giúp mình."},
+        {"role": "user", "content": "Thôi cảm ơn, đủ rồi, khỏi cần tìm thêm gì nữa nhé."},
+        {"role": "user", "content": "À mà cho hỏi, bạn là agent được xây bằng công nghệ gì vậy?"}
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {"no_tool": true, "behavior": "answer_without_tool"},
+      "metadata": {"what_it_tests": "3 turns: user đã từ chối tìm thêm ở lượt 2, lượt cuối là câu hỏi meta về bản thân agent → KHÔNG được gọi tool nào dù ngữ cảnh trước đó có nhắc tìm tin."}
+    },
+    {
+      "id": "G07_multiturn_timeframe_correction",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Tìm tin tức về biến đổi khí hậu trong tuần này."},
+        {"role": "user", "content": "Đổi thành tháng này thay vì tuần này giúp mình."},
+        {"role": "user", "content": "Chủ đề vẫn là biến đổi khí hậu nhé."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "lookup", "args": {"topic": "news", "timeframe": "month"}}]},
+      "metadata": {"what_it_tests": "3 turns: lượt 2 sửa timeframe week→month, lượt cuối chỉ xác nhận lại chủ đề → phải carry timeframe=month đã sửa, không rơi lại về week ban đầu."}
+    },
+    {
+      "id": "G08_multiturn_send_boundary_carryover",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Mình muốn gửi một bản tóm tắt tin tức AI hôm nay lên kênh Telegram của team."},
+        {"role": "user", "content": "Nội dung thì lấy tin AI mới nhất trong ngày là được."},
+        {"role": "user", "content": "Xong nội dung rồi thì gửi luôn giúp mình nhé."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "yes_no"}}]},
+      "metadata": {"what_it_tests": "3 turns: nội dung gửi đã rõ từ ngữ cảnh nhưng chưa từng có xác nhận nào trong hội thoại, lượt cuối vẫn yêu cầu gửi → phải hỏi yes/no trước khi gửi thật."}
+    },
+    {
+      "id": "G09_multiturn_policy_area_correction",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Chính sách công ty về việc chia sẻ dữ liệu người dùng ra bên ngoài là gì?"},
+        {"role": "user", "content": "À khoan, ý mình là quy định khi xuất bản nội dung ra bên ngoài công ty, không phải dữ liệu."},
+        {"role": "user", "content": "Cho mình biết chính sách đó với."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "policy", "args": {"policy_area": "external_publishing"}}]},
+      "metadata": {"what_it_tests": "3 turns: lượt 2 sửa policy_area từ data_privacy sang external_publishing, lượt cuối chỉ nhắc 'chính sách đó' → phải dùng policy_area đã sửa, không giữ giá trị ban đầu."}
+    },
+    {
+      "id": "G10_multiturn_paper_text_carryover",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Tải nội dung bài báo khoa học đó giúp mình để mình đọc tóm tắt."},
+        {"role": "user", "content": "arXiv ID là 2301.12345 nhé."},
+        {"role": "user", "content": "Lấy tối đa 3 trang đầu thôi là đủ."}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "paper_text", "args": {"arxiv_url": "2301.12345", "max_pages": 3}}]},
+      "metadata": {"what_it_tests": "3 turns: lượt 1 thiếu arxiv id, lượt 2 bổ sung, lượt cuối giới hạn max_pages=3 → phải carry đúng arxiv_url từ lượt 2 và áp dụng max_pages=3 từ lượt cuối."}
+    }
+  ]
 }
